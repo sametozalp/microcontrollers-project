@@ -15,36 +15,62 @@ int ledStatus = 0;
 
 String test_photo_url = "https://firebasestorage.googleapis.com/v0/b/uploadimageiot.appspot.com/o/iot%2Fcap.png?alt=media&token=42f500df-5cc1-4738-9210-bb22f6468f1f";
 
+int person = 0;
+
 void setup() {
-
   Serial.begin(9600);
-
-  pinMode(ledPin, OUTPUT);
-
+  Serial.println("a");
   configTime(0, 0, "pool.ntp.org");
   secured_client.setTrustAnchors(&cert);
   Serial.print("Connecting to Wifi SSID ");
   Serial.print(WIFI_SSID);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.println("b");
 
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
+  Serial.println("c");
+
   }
 
   Serial.println("Baglandi..");
-  
+  // LED PIN
+  for (int i = 2; i < 14; i++) {
+    pinMode(i, OUTPUT);
+  }
 }
 
-void loop() {  
+void loop() {
+  Serial.println("selam");
   int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
-
+  Serial.println("sela");
   while (numNewMessages) {
-    Serial.println("got response");
     handleNewMessages(numNewMessages);
     numNewMessages = bot.getUpdates(bot.last_message_received + 1);
   }
+  Serial.println("sel");
+
+  person = random(14);
+  Serial.println(person);
+
+  if (person != 0) {
+    for (int i = 2; i < person + 2; i++) {
+      digitalWrite(i, HIGH);
+    }
+  }
+
+  delay(1000);
+
+  close_leds();
 }
+
+void close_leds() {
+  for (int i = 2; i < 14; i++) {
+    digitalWrite(i, LOW);
+  }
+}
+
 
 void handleNewMessages(int numNewMessages) {
   Serial.print("handleNewMessages ");
