@@ -13,7 +13,7 @@ UniversalTelegramBot bot(BOT_TOKEN, secured_client);
 const int ledPin = LED_BUILTIN;
 int ledStatus = 0;
 
-String test_photo_url = "https://firebasestorage.googleapis.com/v0/b/uploadimageiot.appspot.com/o/iot%2Fcap.png?alt=media&token=42f500df-5cc1-4738-9210-bb22f6468f1f";
+String test_photo_url = "https://storage.googleapis.com/uploadimageiot.appspot.com/iot/cap.png";
 
 int person = 0;
 
