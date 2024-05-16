@@ -1,27 +1,36 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
+//#include <FirebaseArduino.h> 
+#include <ESP8266Firebase.h>
 
 #define WIFI_SSID "Samet"
 #define WIFI_PASSWORD "Samet357910"
 #define BOT_TOKEN "7063608304:AAEJL1BOLGbo2Ba1OophMXm_9yrveoYfXnU"
 
+#define FIREBASE_HOST "uploadimageiot-default-rtdb.firebaseio.com"
+#define FIREBASE_AUTH "gdrXOHlGgsxLdHKdOTeQGA0cQMIvY5TJDu1F2DCv"
+
 X509List cert(TELEGRAM_CERTIFICATE_ROOT);
 WiFiClientSecure secured_client;
 UniversalTelegramBot bot(BOT_TOKEN, secured_client);
 
+Firebase firebase(FIREBASE_HOST);
+
 const int ledPin = LED_BUILTIN;
 int ledStatus = 0;
 
-String test_photo_url = "https://storage.googleapis.com/uploadimageiot.appspot.com/iot/cap.png";
+String photo_url = "https://storage.googleapis.com/uploadimageiot.appspot.com/iot/880011a3-700d-4f82-a8f1-718023a80cce.png";
 
-int person = 0;
-
+int person_count = 0;
+//*************************************************************************************************************
 void setup() {
 
   Serial.begin(9600);
 
   pinMode(ledPin, OUTPUT);
+  delay(100);
+  digitalWrite(ledPin, OUTPUT);
 
   configTime(0, 0, "pool.ntp.org");
   secured_client.setTrustAnchors(&cert);
@@ -36,14 +45,16 @@ void setup() {
 
   Serial.println("Baglandi..");
 
+  //Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
   /*
   for (int i = 2; i < 14; i++) {
     pinMode(i, OUTPUT);
   }
-  */
+  */  
 }
-
+//*************************************************************************************************************
 void loop() {  
+  photo_url = firebase.getString("url");
   int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
 
   while (numNewMessages) {
@@ -52,28 +63,30 @@ void loop() {
     numNewMessages = bot.getUpdates(bot.last_message_received + 1);
   }
 
-  person = random(14);
-  Serial.println(person);
+  person_count = random(14);
+  Serial.println(person_count);
 
-  if (person != 0) {
-    /*
-    for (int i = 2; i < person + 2; i++) {
-      digitalWrite(i, HIGH);
-    }
-    */
+  if (person_count != 0) {
+    //turn_on_leds(person_count);
   }
 
-  delay(1000);
+  //delay(1000);
 
-  //close_leds();
+  //turn_off_leds();
 }
-
-void close_leds() {
+//*************************************************************************************************************
+void turn_on_leds(int &person_count) {
+  for (int i = 2; i < person_count + 2; i++) {
+    digitalWrite(i, HIGH);
+  }
+}
+//*************************************************************************************************************
+void turn_off_leds() {
   for (int i = 2; i < 14; i++) {
     digitalWrite(i, LOW);
   }
 }
-
+//*************************************************************************************************************
 void handleNewMessages(int numNewMessages) {
 
   for (int i = 0; i < numNewMessages; i++) {
@@ -105,7 +118,8 @@ void handleNewMessages(int numNewMessages) {
     }
 
     if (text == "/goruntu_al") {
-      bot.sendPhoto(chat_id, test_photo_url, "");
+      Serial.println("Goruntu gonderiliyor..");
+      bot.sendPhoto(chat_id, photo_url, "");
     }
 
     if (text == "/start") {

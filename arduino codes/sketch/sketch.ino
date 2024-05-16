@@ -22,10 +22,10 @@ void loop() {
 
   delay(1000);
 
-  close_leds();
+  turn_off_leds();
 }
 
-void close_leds() {
+void turn_off_leds() {
   for (int i = 2; i < 14; i++) {
     digitalWrite(i, LOW);
   }
