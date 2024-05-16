@@ -15,7 +15,7 @@ X509List cert(TELEGRAM_CERTIFICATE_ROOT);
 WiFiClientSecure secured_client;
 UniversalTelegramBot bot(BOT_TOKEN, secured_client);
 
-Firebase firebase(FIREBASE_HOST);
+//Firebase firebase(FIREBASE_HOST);
 
 const int ledPin = LED_BUILTIN;
 int ledStatus = 0;
@@ -54,11 +54,13 @@ void setup() {
 }
 //*************************************************************************************************************
 void loop() {  
-  photo_url = firebase.getString("url");
+
+  //photo_url = firebase.getString("url");
+  
   int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
 
   while (numNewMessages) {
-    Serial.println("got response");
+    Serial.println("mesaj istegi geldi..");
     handleNewMessages(numNewMessages);
     numNewMessages = bot.getUpdates(bot.last_message_received + 1);
   }
@@ -94,22 +96,20 @@ void handleNewMessages(int numNewMessages) {
     String text = bot.messages[i].text;
 
     String from_name = bot.messages[i].from_name;
-    if (from_name == "")
-      from_name = "Guest";
-
+    
     if (text == "/ledon") {
       digitalWrite(ledPin, LOW);
       ledStatus = 1;
       bot.sendMessage(chat_id, "Led is ON", "");
     }
 
-    if (text == "/ledoff") {
+    else if (text == "/ledoff") {
       ledStatus = 0;
       digitalWrite(ledPin, HIGH);
       bot.sendMessage(chat_id, "Led is OFF", "");
     }
 
-    if (text == "/status") {
+    else if (text == "/status") {
       if (ledStatus) {
         bot.sendMessage(chat_id, "Led is ON", "");
       } else {
@@ -117,12 +117,14 @@ void handleNewMessages(int numNewMessages) {
       }
     }
 
-    if (text == "/goruntu_al") {
+    else if (text == "/goruntu_al") {
       Serial.println("Goruntu gonderiliyor..");
+      //photo_url = firebase.getString("url");
+      //Serial.println(photo_url);
       bot.sendPhoto(chat_id, photo_url, "");
     }
 
-    if (text == "/start") {
+    else if (text == "/start") {
       String welcome = "Hoşgeldin " + from_name + "!\n";
       welcome += "Bu bir kamera izleme sistemidir.\n";
       welcome += "Görüntüdeki kişi sayısını belirli zaman aralıklarıyla alabilir ve görüntüyü anlık çekebilirsin.\n";
