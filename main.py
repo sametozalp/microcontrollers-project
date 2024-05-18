@@ -1,6 +1,6 @@
 import cv2
+from cv2 import tracker
 import torch
-from tracker import *
 import firebase_admin
 from firebase_admin import credentials, storage, db
 import threading
@@ -57,38 +57,41 @@ a = 1
 ############################################################################################
 
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
-cap=cv2.VideoCapture(0)
-tracker = Tracker()
+cap = cv2.VideoCapture(0)
+t = tracker.Tracker()
 
 while True:
-    ret,frame = cap.read()
+    ret, frame = cap.read()
     frame = cv2.flip(frame, 1)
     frame = cv2.resize(frame,(1920,1080))
-    results = model(frame)
-    list=[]
-    for index,row in results.pandas().xyxy[0].iterrows():
+    results = model(frame) # görüntüyü modelle işler
+    
+    list = [] # koordinat listesi
+
+    for index, row in results.pandas().xyxy[0].iterrows():
         x1 = int(row['xmin'])
         y1 = int(row['ymin'])
         x2 = int(row['xmax'])
         y2 = int(row['ymax'])
-        b = str(row['name'])
+        b = str(row['name']) # algılanan nesnenin adını alır
+
         if 'person' in b:
              list.append([x1,y1,x2,y2])
              
-    kisi_sayisi = tracker.update(list)
+    person_list = t.update(list)
     
     frame_ = frame
 
-    for box_id in kisi_sayisi:
-        x,y,w,h,id=box_id
+    for box_id in person_list:
+        x,y,w,h,id = box_id
         cv2.rectangle(frame_, (x,y), (w,h), (255,0,255), 2)
     
-    print("Kişi Sayisi: ", len(kisi_sayisi))  
-    cv2.putText(frame_, "Kisi Sayisi: " + str(len(kisi_sayisi)), (20,60), cv2.FONT_HERSHEY_PLAIN, 3, (0,0,255), 3)
+    print("Kişi Sayisi: ", len(person_list))  
+    cv2.putText(frame_, "Kisi Sayisi: " + str(len(person_list)), (20,60), cv2.FONT_HERSHEY_PLAIN, 3, (0,0,255), 3)
     cv2.imshow('Mikrodenetleyiciler', frame)
     
     if a == 1:
-        thread.start()
+        #thread.start()
         a = 0
         
     if cv2.waitKey(1) & 0xFF==27:
