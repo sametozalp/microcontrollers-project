@@ -37,12 +37,12 @@ void setup() {
   Serial.print("Connecting to Wifi SSID ");
   Serial.print(WIFI_SSID);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
+/*
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
   }
-
+*/
   Serial.println("Baglandi..");
 
   //Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
@@ -53,10 +53,11 @@ void setup() {
   */  
 }
 //*************************************************************************************************************
+int receivedData = 0;
 void loop() {  
 
   //photo_url = firebase.getString("url");
-  
+  /*
   int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
 
   while (numNewMessages) {
@@ -64,15 +65,24 @@ void loop() {
     handleNewMessages(numNewMessages);
     numNewMessages = bot.getUpdates(bot.last_message_received + 1);
   }
-
-  person_count = random(14);
+*/
+/*
+  if (Serial.available() > 0) {
+    // Gelen veriyi oku
+    //receivedData = Serial.parseInt();
+    //receivedData = Serial.analogRead(COM9);
+    // Gelen veriyi seri monitörde göster
+    Serial.println("Received: " + receivedData);
+  }
+*/
+  person_count = random(2);
   Serial.println(person_count);
 
   if (person_count != 0) {
     //turn_on_leds(person_count);
   }
 
-  //delay(1000);
+  delay(1000);
 
   //turn_off_leds();
 }

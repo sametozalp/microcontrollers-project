@@ -6,6 +6,10 @@ from firebase_admin import credentials, storage, db
 import threading
 import time
 import uuid
+import serial
+import time
+
+ser = serial.Serial('COM7', 9600)
 
 def save_url_in_firebase(download_url):
     ref = db.reference('/')
@@ -15,6 +19,11 @@ def save_url_in_firebase(download_url):
     })
     
     print("resim url'i firebase'e kaydedildi..")
+
+    
+def send_data(data):
+    ser.write(str(data).encode())
+
     
 def get_url(path):
     blob = bucket.blob(path)
@@ -89,6 +98,8 @@ while True:
     print("Kişi Sayisi: ", len(person_list))  
     cv2.putText(frame_, "Kisi Sayisi: " + str(len(person_list)), (20,60), cv2.FONT_HERSHEY_PLAIN, 3, (0,0,255), 3)
     cv2.imshow('Mikrodenetleyiciler', frame)
+
+    send_data(len(person_list))
     
     if a == 1:
         #thread.start()
