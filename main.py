@@ -20,27 +20,25 @@ def save_url_in_firebase(download_url):
     })
     
     print("resim url'i firebase'e kaydedildi..")
-
     
 def send_data(data):
     ser.write(str(data).encode())
 
 b=100
 a = 100
-
+"""
 """
 while 1:
-
     while b==a:
-        a = random.randint(0,2)
+        a = random.randint(1,2)
         
     b = a
+
+
     send_data(a)
     print("calisiyor")
     print(a)
-    time.sleep(5)
-"""
-
+    time.sleep(15)
 
 def get_url(path):
     blob = bucket.blob(path)

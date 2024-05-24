@@ -21,8 +21,6 @@ const int ledPin = LED_BUILTIN;
 int ledStatus = 0;
 
 String photo_url = "https://storage.googleapis.com/uploadimageiot.appspot.com/iot/880011a3-700d-4f82-a8f1-718023a80cce.png";
-
-int person_count = 0;
 //*************************************************************************************************************
 void setup() {
 
@@ -30,27 +28,22 @@ void setup() {
 
   pinMode(ledPin, OUTPUT);
   delay(100);
-  digitalWrite(ledPin, OUTPUT);
+  //digitalWrite(ledPin, OUTPUT);
 
   configTime(0, 0, "pool.ntp.org");
   secured_client.setTrustAnchors(&cert);
   Serial.print("Connecting to Wifi SSID ");
   Serial.print(WIFI_SSID);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-/*
+
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
   }
-*/
+
   Serial.println("Baglandi..");
 
   //Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
-  /*
-  for (int i = 2; i < 14; i++) {
-    pinMode(i, OUTPUT);
-  }
-  */  
 }
 //*************************************************************************************************************
 void loop() {  
@@ -64,30 +57,8 @@ void loop() {
     handleNewMessages(numNewMessages);
     numNewMessages = bot.getUpdates(bot.last_message_received + 1);
   }
-
-  if (Serial.available() > 0) {
-    person_count = Serial.parseInt();
-  }
-
-  if (person_count != 0) {
-    turn_on_leds(person_count);    
-  }
   
   delay(500);
-
-  turn_off_leds();
-}
-//*************************************************************************************************************
-void turn_on_leds(int &person_count) {
-  for (int i = 2; i < person_count + 2; i++) {
-    digitalWrite(i, HIGH);
-  }
-}
-//*************************************************************************************************************
-void turn_off_leds() {
-  for (int i = 2; i < 14; i++) {
-    digitalWrite(i, LOW);
-  }
 }
 //*************************************************************************************************************
 void handleNewMessages(int numNewMessages) {
@@ -129,7 +100,18 @@ void handleNewMessages(int numNewMessages) {
       String welcome = "Hoşgeldin " + from_name + "!\n";
       welcome += "Bu bir kamera izleme sistemidir.\n";
       welcome += "Görüntüdeki kişi sayısını belirli zaman aralıklarıyla alabilir ve görüntüyü anlık çekebilirsin.\n";
-      bot.sendMessage(chat_id, welcome, "Markdown");
+      bot.sendMessage(chat_id, welcome, "");
+    }
+
+    else if (text == "/kac_kisi") {
+      if (Serial.available() > 0) {
+        int person_count = Serial.parseInt();
+        String message = "Şu anda kamerada ";
+        message += person_count;
+        message += " kişi var..";
+        bot.sendMessage(chat_id, message, "");
+        bot.sendMessage(chat_id, "ben bir deneme yapıyom", "");
+      }
     }
   }
 }
