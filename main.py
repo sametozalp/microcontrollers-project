@@ -8,6 +8,7 @@ import time
 import uuid
 import serial
 import time
+import random
 
 ser = serial.Serial('COM7', 9600)
 
@@ -24,7 +25,23 @@ def save_url_in_firebase(download_url):
 def send_data(data):
     ser.write(str(data).encode())
 
-    
+b=100
+a = 100
+
+"""
+while 1:
+
+    while b==a:
+        a = random.randint(0,2)
+        
+    b = a
+    send_data(a)
+    print("calisiyor")
+    print(a)
+    time.sleep(5)
+"""
+
+
 def get_url(path):
     blob = bucket.blob(path)
     blob.make_public()
@@ -49,6 +66,18 @@ def start_upload_thread():
             download_url = get_url("iot/" + str(random_uuid) + ".png")
             save_url_in_firebase(download_url)
             time.sleep(10)
+        
+
+###################################################################################
+
+person_count = 0
+
+def start_upload_thread2():
+    while 1:
+        send_data(person_count)
+        print(person_count)
+        print("sayı gönderildi")
+        time.sleep(5)
 
 ###################################################################################
 
@@ -61,6 +90,7 @@ firebase_admin.initialize_app(cred, {
 bucket = storage.bucket('uploadimageiot.appspot.com')
 
 thread = threading.Thread(target=start_upload_thread)
+thread2 = threading.Thread(target=start_upload_thread2)
 a = 1
 
 ############################################################################################
@@ -88,6 +118,7 @@ while True:
              list.append([x1,y1,x2,y2])
              
     person_list = t.update(list)
+    person_count = len(person_list)
     
     frame_ = frame
 
@@ -95,14 +126,13 @@ while True:
         x,y,w,h,id = box_id
         cv2.rectangle(frame_, (x,y), (w,h), (255,0,255), 2)
     
-    print("Kişi Sayisi: ", len(person_list))  
-    cv2.putText(frame_, "Kisi Sayisi: " + str(len(person_list)), (20,60), cv2.FONT_HERSHEY_PLAIN, 3, (0,0,255), 3)
+    print("Kişi Sayisi: ", person_count)  
+    cv2.putText(frame_, "Kisi Sayisi: " + str(person_count), (20,60), cv2.FONT_HERSHEY_PLAIN, 3, (0,0,255), 3)
     cv2.imshow('Mikrodenetleyiciler', frame)
-
-    send_data(len(person_list))
     
     if a == 1:
         #thread.start()
+        thread2.start()
         a = 0
         
     if cv2.waitKey(1) & 0xFF==27:
