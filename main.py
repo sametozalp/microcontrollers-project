@@ -38,7 +38,7 @@ while 1:
     send_data(a)
     print("calisiyor")
     print(a)
-    time.sleep(15)
+    time.sleep(25)
 
 def get_url(path):
     blob = bucket.blob(path)

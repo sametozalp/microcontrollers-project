@@ -16,8 +16,8 @@ void loop() {
   if (Serial.available() > 0) {
     person_count = Serial.parseInt();
   }
-  person_count= 10;
-  Serial.println(person_count);
+  //person_count= random(0,3);
+  Serial.print(person_count);
 
   if (person_count != old_person_count) {
     turn_off_leds();

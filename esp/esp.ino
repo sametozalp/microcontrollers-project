@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
-//#include <FirebaseArduino.h> 
+//#include <FirebaseArduino.h>
 #include <ESP8266Firebase.h>
 
 #define WIFI_SSID "Samet"
@@ -19,6 +19,7 @@ UniversalTelegramBot bot(BOT_TOKEN, secured_client);
 
 const int ledPin = LED_BUILTIN;
 int ledStatus = 0;
+String person_count = "";
 
 String photo_url = "https://storage.googleapis.com/uploadimageiot.appspot.com/iot/880011a3-700d-4f82-a8f1-718023a80cce.png";
 //*************************************************************************************************************
@@ -46,10 +47,10 @@ void setup() {
   //Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
 }
 //*************************************************************************************************************
-void loop() {  
+void loop() {
 
   //photo_url = firebase.getString("url");
-  
+
   int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
 
   while (numNewMessages) {
@@ -57,7 +58,7 @@ void loop() {
     handleNewMessages(numNewMessages);
     numNewMessages = bot.getUpdates(bot.last_message_received + 1);
   }
-  
+
   delay(500);
 }
 //*************************************************************************************************************
@@ -68,7 +69,7 @@ void handleNewMessages(int numNewMessages) {
     String text = bot.messages[i].text;
 
     String from_name = bot.messages[i].from_name;
-    
+
     if (text == "/ledon") {
       digitalWrite(ledPin, LOW);
       ledStatus = 1;
@@ -104,13 +105,15 @@ void handleNewMessages(int numNewMessages) {
     }
 
     else if (text == "/kac_kisi") {
+
       if (Serial.available() > 0) {
-        int person_count = Serial.parseInt();
+        person_count = Serial.read();
+        //bot.sendMessage("812672293", ""+person_count, "");
+
         String message = "Şu anda kamerada ";
         message += person_count;
         message += " kişi var..";
         bot.sendMessage(chat_id, message, "");
-        bot.sendMessage(chat_id, "ben bir deneme yapıyom", "");
       }
     }
   }
