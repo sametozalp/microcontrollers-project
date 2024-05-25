@@ -19,7 +19,9 @@ UniversalTelegramBot bot(BOT_TOKEN, secured_client);
 
 const int ledPin = LED_BUILTIN;
 int ledStatus = 0;
-String person_count = "";
+volatile int person_count = 0;
+
+String chat = "";
 
 String photo_url = "https://storage.googleapis.com/uploadimageiot.appspot.com/iot/880011a3-700d-4f82-a8f1-718023a80cce.png";
 //*************************************************************************************************************
@@ -49,12 +51,19 @@ void setup() {
 //*************************************************************************************************************
 void loop() {
 
+  if (Serial.available() > 0) {
+      person_count = Serial.parseInt();
+  }
+  
+  person_count = random(0,3);
+  Serial.print(person_count);
+  
   //photo_url = firebase.getString("url");
 
   int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
 
   while (numNewMessages) {
-    Serial.println("mesaj istegi geldi..");
+    //Serial.println("mesaj istegi geldi..");
     handleNewMessages(numNewMessages);
     numNewMessages = bot.getUpdates(bot.last_message_received + 1);
   }
@@ -66,6 +75,7 @@ void handleNewMessages(int numNewMessages) {
 
   for (int i = 0; i < numNewMessages; i++) {
     String chat_id = bot.messages[i].chat_id;
+    chat = chat_id;
     String text = bot.messages[i].text;
 
     String from_name = bot.messages[i].from_name;
@@ -106,15 +116,18 @@ void handleNewMessages(int numNewMessages) {
 
     else if (text == "/kac_kisi") {
 
-      if (Serial.available() > 0) {
-        person_count = Serial.read();
-        //bot.sendMessage("812672293", ""+person_count, "");
-
-        String message = "Şu anda kamerada ";
+       String message = "Şu anda kamerada ";
         message += person_count;
         message += " kişi var..";
         bot.sendMessage(chat_id, message, "");
+      /*
+      if (Serial.available() > 0) {
+        person_count = Serial.parseInt();
+        //bot.sendMessage("812672293", ""+person_count, "");
+
+       
       }
+      */
     }
   }
 }
