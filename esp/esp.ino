@@ -1,7 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
-//#include <FirebaseArduino.h>
 #include <ESP8266Firebase.h>
 
 #define WIFI_SSID "Samet"
@@ -15,7 +14,7 @@ X509List cert(TELEGRAM_CERTIFICATE_ROOT);
 WiFiClientSecure secured_client;
 UniversalTelegramBot bot(BOT_TOKEN, secured_client);
 
-//Firebase firebase(FIREBASE_HOST);
+Firebase firebase(FIREBASE_HOST);
 
 const int ledPin = LED_BUILTIN;
 int ledStatus = 0;
@@ -24,7 +23,8 @@ const unsigned long BOT_MTBS = 1000;
 unsigned long bot_lasttime;
 String chat = "";
 
-String photo_url = "https://storage.googleapis.com/uploadimageiot.appspot.com/iot/880011a3-700d-4f82-a8f1-718023a80cce.png";
+volatile bool fire = false; // görüntü alma istegi gelince true olur
+String photo_url = "";
 //*************************************************************************************************************
 void setup() {
 
@@ -46,8 +46,6 @@ void setup() {
   }
 
   Serial.println("Baglandi..");
-
-  //Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
 }
 //*************************************************************************************************************
 void loop() {
@@ -57,15 +55,27 @@ void loop() {
     person_count = person_count % 10;
   }
 
+  if (fire == true) {
+    photo_url = firebase.getString("url");
+
+    Serial.println(photo_url);
+    /*
+      if (photo_url.length() != 0) {
+      bot.sendPhoto(chat, photo_url, "");
+      } else {
+      bot.sendMessage(chat, "Görüntü bulunamadı..", "");
+      }
+    */
+    fire = false;
+  }
+
   //person_count = random(0,3);
   Serial.print(person_count);
-
-  //photo_url = firebase.getString("url");
 
   if (millis() - bot_lasttime > BOT_MTBS)
   {
     int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
-
+    Serial.println(numNewMessages);
     while (numNewMessages) {
       //Serial.println("mesaj istegi geldi..");
       handleNewMessages(numNewMessages);
@@ -73,12 +83,15 @@ void loop() {
     }
     bot_lasttime = millis();
   }
-  
+
   delay(500);
+}
+
+void tg() {
+  
 }
 //*************************************************************************************************************
 void handleNewMessages(int numNewMessages) {
-
   for (int i = 0; i < numNewMessages; i++) {
     String chat_id = bot.messages[i].chat_id;
     chat = chat_id;
@@ -107,10 +120,20 @@ void handleNewMessages(int numNewMessages) {
     }
 
     else if (text == "/goruntu_al") {
-      Serial.println("Goruntu gonderiliyor..");
-      //photo_url = firebase.getString("url");
-      //Serial.println(photo_url);
-      bot.sendPhoto(chat_id, photo_url, "");
+      fire = true;
+
+      /*
+        photo_url = "https://storage.googleapis.com/uploadimageiot.appspot.com/iot/ea170d59-7abb-48f1-a0e8-9a0745130fd7.png";
+        Serial.println(photo_url);
+        Serial.println("fjdıa");
+        if (photo_url.length() != 0) {
+        Serial.println("if");
+        bot.sendPhoto(chat_id, photo_url, "");
+        } else {
+        Serial.println("else if");
+        bot.sendMessage(chat_id, "Görüntü bulunamadı..", "");
+        }
+      */
     }
 
     else if (text == "/start") {
@@ -126,14 +149,6 @@ void handleNewMessages(int numNewMessages) {
       message += person_count;
       message += " kişi var..";
       bot.sendMessage(chat_id, message, "");
-      /*
-        if (Serial.available() > 0) {
-        person_count = Serial.parseInt();
-        //bot.sendMessage("812672293", ""+person_count, "");
-
-
-        }
-      */
     }
   }
 }
