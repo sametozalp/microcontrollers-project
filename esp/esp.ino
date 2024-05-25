@@ -20,7 +20,8 @@ UniversalTelegramBot bot(BOT_TOKEN, secured_client);
 const int ledPin = LED_BUILTIN;
 int ledStatus = 0;
 volatile int person_count = 0;
-
+const unsigned long BOT_MTBS = 1000;
+unsigned long bot_lasttime;
 String chat = "";
 
 String photo_url = "https://storage.googleapis.com/uploadimageiot.appspot.com/iot/880011a3-700d-4f82-a8f1-718023a80cce.png";
@@ -52,22 +53,27 @@ void setup() {
 void loop() {
 
   if (Serial.available() > 0) {
-      person_count = Serial.parseInt();
+    person_count = Serial.parseInt();
+    person_count = person_count % 10;
   }
-  
-  person_count = random(0,3);
+
+  //person_count = random(0,3);
   Serial.print(person_count);
-  
+
   //photo_url = firebase.getString("url");
 
-  int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+  if (millis() - bot_lasttime > BOT_MTBS)
+  {
+    int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
 
-  while (numNewMessages) {
-    //Serial.println("mesaj istegi geldi..");
-    handleNewMessages(numNewMessages);
-    numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+    while (numNewMessages) {
+      //Serial.println("mesaj istegi geldi..");
+      handleNewMessages(numNewMessages);
+      numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+    }
+    bot_lasttime = millis();
   }
-
+  
   delay(500);
 }
 //*************************************************************************************************************
@@ -116,17 +122,17 @@ void handleNewMessages(int numNewMessages) {
 
     else if (text == "/kac_kisi") {
 
-       String message = "Şu anda kamerada ";
-        message += person_count;
-        message += " kişi var..";
-        bot.sendMessage(chat_id, message, "");
+      String message = "Şu anda kamerada ";
+      message += person_count;
+      message += " kişi var..";
+      bot.sendMessage(chat_id, message, "");
       /*
-      if (Serial.available() > 0) {
+        if (Serial.available() > 0) {
         person_count = Serial.parseInt();
         //bot.sendMessage("812672293", ""+person_count, "");
 
-       
-      }
+
+        }
       */
     }
   }

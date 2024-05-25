@@ -27,7 +27,6 @@ def send_data(data):
 b=100
 a = 100
 """
-"""
 while 1:
     while b==a:
         a = random.randint(1,2)
@@ -38,7 +37,8 @@ while 1:
     send_data(a)
     print("calisiyor")
     print(a)
-    time.sleep(5)
+    time.sleep(10)
+"""
 
 def get_url(path):
     blob = bucket.blob(path)
