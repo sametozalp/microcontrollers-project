@@ -9,6 +9,14 @@ import uuid
 import serial
 import time
 import random
+import http.client
+import urllib.request
+import requests
+
+def thingspeak(url_adress):
+    URL = 'https://api.thingspeak.com/update?api_key=TIR8LOX47CW4X0T1&field1=' + url_adress
+    response = requests.get(URL)
+    print(response)
 
 ser = serial.Serial('COM7', 9600)
 
@@ -38,6 +46,7 @@ while 1:
     send_data(a)
     print("calisiyor")
     print(a)
+
     time.sleep(5)
 
 def get_url(path):
@@ -63,6 +72,7 @@ def start_upload_thread():
             upload_image("a.png", random_uuid)
             download_url = get_url("iot/" + str(random_uuid) + ".png")
             save_url_in_firebase(download_url)
+            thingspeak(download_url)
             time.sleep(10)
         
 
