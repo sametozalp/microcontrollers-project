@@ -59,13 +59,13 @@ void loop() {
     photo_url = firebase.getString("url");
 
     Serial.println(photo_url);
-    /*
-      if (photo_url.length() != 0) {
+
+    if (photo_url.length() != 0) {
       bot.sendPhoto(chat, photo_url, "");
-      } else {
+    } else {
       bot.sendMessage(chat, "Görüntü bulunamadı..", "");
-      }
-    */
+    }
+
     fire = false;
   }
 
@@ -87,9 +87,6 @@ void loop() {
   delay(500);
 }
 
-void tg() {
-  
-}
 //*************************************************************************************************************
 void handleNewMessages(int numNewMessages) {
   for (int i = 0; i < numNewMessages; i++) {
@@ -98,48 +95,41 @@ void handleNewMessages(int numNewMessages) {
     String text = bot.messages[i].text;
 
     String from_name = bot.messages[i].from_name;
-
-    if (text == "/ledon") {
+    
+    if (text == "/led_yak") {
       digitalWrite(ledPin, LOW);
       ledStatus = 1;
-      bot.sendMessage(chat_id, "Led is ON", "");
+      bot.sendMessage(chat_id, "Led yandı", "");
     }
 
-    else if (text == "/ledoff") {
+    else if (text == "/led_sondur") {
       ledStatus = 0;
       digitalWrite(ledPin, HIGH);
-      bot.sendMessage(chat_id, "Led is OFF", "");
+      bot.sendMessage(chat_id, "Led söndü", "");
     }
 
-    else if (text == "/status") {
+    else if (text == "/led_durum") {
       if (ledStatus) {
-        bot.sendMessage(chat_id, "Led is ON", "");
+        bot.sendMessage(chat_id, "Led yanıyor", "");
       } else {
-        bot.sendMessage(chat_id, "Led is OFF", "");
+        bot.sendMessage(chat_id, "Led sönük", "");
       }
     }
 
     else if (text == "/goruntu_al") {
       fire = true;
-
-      /*
-        photo_url = "https://storage.googleapis.com/uploadimageiot.appspot.com/iot/ea170d59-7abb-48f1-a0e8-9a0745130fd7.png";
-        Serial.println(photo_url);
-        Serial.println("fjdıa");
-        if (photo_url.length() != 0) {
-        Serial.println("if");
-        bot.sendPhoto(chat_id, photo_url, "");
-        } else {
-        Serial.println("else if");
-        bot.sendMessage(chat_id, "Görüntü bulunamadı..", "");
-        }
-      */
     }
 
     else if (text == "/start") {
       String welcome = "Hoşgeldin " + from_name + "!\n";
       welcome += "Bu bir kamera izleme sistemidir.\n";
-      welcome += "Görüntüdeki kişi sayısını belirli zaman aralıklarıyla alabilir ve görüntüyü anlık çekebilirsin.\n";
+      welcome += "Görüntüdeki kişi sayısını belirli zaman aralıklarıyla alabilir ve görüntüyü anlık çekebilirsin.\n\n";
+      welcome += "Aşağıdaki komutları kullanarak sistemle iletişim kurabilirsin..\n";
+      welcome += "/led_yak - esp8266 üzerindeki ledi yak\n";
+      welcome += "/led_sondur - esp8266 üzerindeki ledi söndür\n";
+      welcome += "/led_durum - esp8266 üzerindeki ledin durumunu öğren\n";
+      welcome += "/kac_kisi - kamerada kaç kişi var ?\n";
+      welcome += "/goruntu_al - kamera görüntüsünü gönder\n";
       bot.sendMessage(chat_id, welcome, "");
     }
 
