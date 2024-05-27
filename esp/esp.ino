@@ -23,9 +23,6 @@ const unsigned long BOT_MTBS = 1000;
 unsigned long bot_lasttime;
 String chat = "";
 
-volatile bool fire = false; // görüntü alma istegi gelince true olur
-String photo_url = "";
-
 const char* web_adresi = "api.thingspeak.com";    // baglanilacak web sunucu adresi veya IP adresi
 const uint16_t port = 80;           // baglanilacak sunucu portu
 
@@ -59,20 +56,6 @@ void loop() {
   if (Serial.available() > 0) {
     person_count = Serial.parseInt();
     person_count = person_count % 10;
-  }
-
-  if (fire == true) {
-    photo_url = firebase.getString("url");
-
-    Serial.println(photo_url);
-
-    if (photo_url.length() != 0) {
-      bot.sendPhoto(chat, photo_url, "");
-    } else {
-      bot.sendMessage(chat, "Görüntü bulunamadı..", "");
-    }
-
-    fire = false;
   }
 
   //person_count = random(0,3);
