@@ -25,6 +25,12 @@ String chat = "";
 
 volatile bool fire = false; // görüntü alma istegi gelince true olur
 String photo_url = "";
+
+const char* web_adresi = "api.thingspeak.com";    // baglanilacak web sunucu adresi veya IP adresi
+const uint16_t port = 80;           // baglanilacak sunucu portu
+
+String uzanti = "/channels/2561421/feeds.json?api_key=MQW98XSY33FOPU72&results=2";              // baglanilacak olan web sayfasinin uzantisi
+
 //*************************************************************************************************************
 void setup() {
 
@@ -75,7 +81,6 @@ void loop() {
   if (millis() - bot_lasttime > BOT_MTBS)
   {
     int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
-    Serial.println(numNewMessages);
     while (numNewMessages) {
       //Serial.println("mesaj istegi geldi..");
       handleNewMessages(numNewMessages);
@@ -95,7 +100,7 @@ void handleNewMessages(int numNewMessages) {
     String text = bot.messages[i].text;
 
     String from_name = bot.messages[i].from_name;
-    
+
     if (text == "/led_yak") {
       digitalWrite(ledPin, LOW);
       ledStatus = 1;
@@ -117,7 +122,62 @@ void handleNewMessages(int numNewMessages) {
     }
 
     else if (text == "/goruntu_al") {
-      fire = true;
+      //fire = true;
+      WiFiClient istemci;       // istemci nesnesini oluştur
+
+      if (!istemci.connect(web_adresi, port)) {
+        //Serial.println("Sunucuya baglanma hatasi");
+        delay(5000);
+        return;
+      }
+      //Serial.println("WEB sunucusuna baglandi");
+      delay(2000);
+
+      //--------------- sunucudan sayfa isteme -----------------
+      String http_req = "";
+      http_req += "GET ";
+      http_req += uzanti;
+      http_req += " HTTP/1.1\r\n";
+      http_req += "Host: ";
+      http_req += web_adresi;
+      http_req += "\r\n";
+      http_req += "Connection: close\r\n";
+      istemci.println(http_req);
+      //------------------ isteme sonu -----------------------
+
+      //-------- 5 sn lik zaman döngüsü kur ve istek geldi mi diye kontrol et ------
+      // çalışma zamanı milisaniye cinsinden tutan millis() fonksiyonundan süre al, başlangıc zamanı
+      unsigned long onceki_zaman = millis();
+      while (istemci.available() == 0) {
+        if (millis() - onceki_zaman > 5000) {
+          Serial.println("Baglanti hatasi");
+          istemci.stop();
+          delay(2000);
+          return;
+        }
+      }
+      //-------------- veri gelmis satır satır oku ekrana yazdır --------------------
+      while (istemci.available())
+      {
+        String satir = istemci.readStringUntil('\r');
+        int index_numarasi = satir.indexOf("last_entry_id");  // aranan String buraya yazılır
+        if (index_numarasi != -1)           // aranan string satir degiskeni icerisinde varsa if içine girer
+        {
+          String last_entry_id = satir.substring(index_numarasi + 15);
+          String final_last_entry_id = last_entry_id.substring(0, last_entry_id.indexOf("}"));
+          int feeds_index = last_entry_id.indexOf("entry_id\":" + final_last_entry_id);
+          String value = last_entry_id.substring(feeds_index + 9);
+          String ilk_tirnaktan_itibaren = value.substring(value.indexOf("\"") + 10);
+          int son_tirnak_index = ilk_tirnaktan_itibaren.indexOf("\"");
+          String istenen = ilk_tirnaktan_itibaren.substring(0, son_tirnak_index);
+          bot.sendPhoto(chat, istenen, "");
+
+        }
+        //Serial.println(satir);
+      }
+      //Serial.println("-------------------------");
+      istemci.stop();
+      delay(2000);
     }
 
     else if (text == "/start") {
@@ -141,4 +201,63 @@ void handleNewMessages(int numNewMessages) {
       bot.sendMessage(chat_id, message, "");
     }
   }
+}
+
+void url_al() {
+  WiFiClient istemci;       // istemci nesnesini oluştur
+
+  if (!istemci.connect(web_adresi, port)) {
+    //Serial.println("Sunucuya baglanma hatasi");
+    delay(5000);
+    return;
+  }
+  //Serial.println("WEB sunucusuna baglandi");
+  delay(2000);
+
+  //--------------- sunucudan sayfa isteme -----------------
+  String http_req = "";
+  http_req += "GET ";
+  http_req += uzanti;
+  http_req += " HTTP/1.1\r\n";
+  http_req += "Host: ";
+  http_req += web_adresi;
+  http_req += "\r\n";
+  http_req += "Connection: close\r\n";
+  istemci.println(http_req);
+  //------------------ isteme sonu -----------------------
+
+  //-------- 5 sn lik zaman döngüsü kur ve istek geldi mi diye kontrol et ------
+  // çalışma zamanı milisaniye cinsinden tutan millis() fonksiyonundan süre al, başlangıc zamanı
+  unsigned long onceki_zaman = millis();
+  while (istemci.available() == 0) {
+    if (millis() - onceki_zaman > 5000) {
+      Serial.println("Baglanti hatasi");
+      istemci.stop();
+      delay(2000);
+      return;
+    }
+  }
+  //-------------- veri gelmis satır satır oku ekrana yazdır --------------------
+  while (istemci.available())
+  {
+    String satir = istemci.readStringUntil('\r');
+    int index_numarasi = satir.indexOf("last_entry_id");  // aranan String buraya yazılır
+    if (index_numarasi != -1)           // aranan string satir degiskeni icerisinde varsa if içine girer
+    {
+      String last_entry_id = satir.substring(index_numarasi + 15);
+      String final_last_entry_id = last_entry_id.substring(0, last_entry_id.indexOf("}"));
+      int feeds_index = last_entry_id.indexOf("entry_id\":" + final_last_entry_id);
+      String value = last_entry_id.substring(feeds_index + 9);
+      String ilk_tirnaktan_itibaren = value.substring(value.indexOf("\"") + 10);
+      int son_tirnak_index = ilk_tirnaktan_itibaren.indexOf("\"");
+      String istenen = ilk_tirnaktan_itibaren.substring(0, son_tirnak_index);
+      Serial.println("nerdeyiz: ");
+      Serial.println(istenen);
+
+    }
+    //Serial.println(satir);
+  }
+  //Serial.println("-------------------------");
+  istemci.stop();
+  delay(2000);
 }

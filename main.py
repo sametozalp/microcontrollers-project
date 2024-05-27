@@ -18,7 +18,7 @@ def thingspeak(url_adress):
     response = requests.get(URL)
     print(response)
 
-ser = serial.Serial('COM7', 9600)
+ser = serial.Serial('COM6', 9600)
 
 def save_url_in_firebase(download_url):
     ref = db.reference('/')
@@ -35,7 +35,6 @@ def send_data(data):
 b=100
 a = 100
 """
-"""
 while 1:
     while b==a:
         a = random.randint(1,2)
@@ -48,6 +47,7 @@ while 1:
     print(a)
 
     time.sleep(5)
+"""
 
 def get_url(path):
     blob = bucket.blob(path)
