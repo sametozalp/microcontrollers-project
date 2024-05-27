@@ -8,10 +8,10 @@ import time
 import uuid
 import serial
 import time
-import random
-import http.client
-import urllib.request
 import requests
+import random
+
+#https://storage.googleapis.com/uploadimageiot.appspot.com/iot/ea170d59-7abb-48f1-a0e8-9a0745130fd7.png
 
 def thingspeak(url_adress):
     URL = 'https://api.thingspeak.com/update?api_key=TIR8LOX47CW4X0T1&field1=' + url_adress
@@ -35,6 +35,7 @@ def send_data(data):
 b=100
 a = 100
 """
+"""
 while 1:
     while b==a:
         a = random.randint(1,2)
@@ -47,7 +48,6 @@ while 1:
     print(a)
 
     time.sleep(5)
-"""
 
 def get_url(path):
     blob = bucket.blob(path)
